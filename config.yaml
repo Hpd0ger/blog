@@ -1,8 +1,5 @@
-# exampleSite/config.yaml
-baseURL: https://smigle-hugo-theme.netlify.app/ # Replace with your domain
+baseURL: https://blog.hpdoger.cn/ # Replace with your domain
 languageCode: en-us
-theme: smigle
-# themesDir: ../.. # Only needed for running the example site
 title: Hpdoger Blog
 menu:
   main:

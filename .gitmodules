@@ -1,6 +1,0 @@
-[submodule "themes/hugo-simplecss"]
-	path = themes/hugo-simplecss
-	url = https://github.com/splch/hugo-simplecss.git
-[submodule "themes/smigle"]
-	path = themes/smigle
-	url = https://gitlab.com/ian-s-mcb/smigle-hugo-theme
