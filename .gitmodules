@@ -1,0 +1,12 @@
+[submodule "themes/hugo-flex"]
+	path = themes/hugo-flex
+	url = https://github.com/de-souza/hugo-flex.git
+[submodule "themes/hugo-xterm"]
+	path = themes/hugo-xterm
+	url = https://github.com/manid2/hugo-xterm
+[submodule "themes/hugo-simplecss"]
+	path = themes/hugo-simplecss
+	url = https://github.com/splch/hugo-simplecss.git
+[submodule "themes/smigle"]
+	path = themes/smigle
+	url = https://gitlab.com/ian-s-mcb/smigle-hugo-theme
