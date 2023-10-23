@@ -1,0 +1,44 @@
+baseURL: https://blog.hpdoger.cn/ # Replace with your domain
+languageCode: en-us
+title: Hpdoger Blog
+menu:
+  main:
+    # - identifier: home
+    #   name: Home
+    #   url: /
+    #   weight: 1
+    - identifier: about
+      name: About
+      url: /
+      weight: 1
+    - identifier: posts
+      name: Posts
+      url: /posts/
+      weight: 2
+    - identifier: categories
+      name: Categories
+      url: /categories/
+      weight: 3
+    - identifier: tags
+      name: Tags
+      url: /tags/
+      weight: 4
+params:
+  abbrDateFmt: "Jan 2"
+  author: "HappyDog"
+  brandIconFile: "images/brandIcon.svg"
+  dateFmt: "2006-01-02"
+  ##
+  ## Options for overriding theme or page defaults
+  ##
+  #customStylesheets: # Use to override theme styles, like logo size
+  #  - "css/custom.css"
+  #readingSpeed: 600 # Use to set custom reading speed
+  #readingSpeedMin: 25 # Use to set custom reading speed range
+  #readingSpeedMax: 175 # Use to set custom reading speed range
+  social:
+    - name: GitHub
+      url: https://github.com/
+    - name: Twitter
+      url: https://twitter.com/hpdoger
+  subtitle: "Share with Web Security Knowledge"
