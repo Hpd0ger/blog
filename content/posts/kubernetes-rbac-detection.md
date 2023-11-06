@@ -14,26 +14,26 @@ categories:
 ##
 ---
 
-# 写在前面
+## 写在前面
 不久前看到一篇对Kubernetes授权管理的文章，笔者而后进行一些实验和思考，因此诞生了这篇学习笔记。本文章思路未必贴合实际应用场景，有概念错误的地方还望多多指正。
 
 首先笔者对于Kubernetes用户的授权分为两个抽象主体：对「基础设施」的权限授予和对「服务」的权限授予。
 
-# 分类讨论
-## 0x01-基础设施
+## 分类讨论
+### 0x01-基础设施
 
 「基础设施」的权限，理想情况下按照集群结构划分：
 
 1. master节点使用admin用户账户权限，意即管理员权限
 2. node节点使用普通用户权限，普通用户权限仅能对集群中的部分资源控制，或者是对某个namespcace中的资源进行控制
 
-## 0x02-服务
+### 0x02-服务
 
 什么又叫做对「服务」进行划分呢？云计算的初衷是优雅地调配庞大规模的服务群，那么运维人员就需要对A、B、C…这些服务（Service）能够操纵集群权限这个能力进行考量，假如Service A由三台nginx容器构成，可能就不需要什么集群服务的资源。对于B服务而言，其定位是用来监控集群主机健康状态的，所以就需要很强的「CURD」权限，起码是对「Pod」、「Deployment」有管理权限。
 
 在「Kubernetes」中，每个服务容器都会被「kubelet」下发一个默认的「ServiceAccount」账户（后文简称SA），而运维人员可以指定服务容器注入哪个SA账户。这意味着运维人员可以将不同SA账户注入给各类服务容器，来达到各类服务（A、B、C）权限细粒度化。
 
-## 0x03-归根到底
+### 0x03-归根到底
 「基础设施」和「服务」的权限授予有相同之处，但又不完全相同。相同的地方在于概念，都是为了控制对集群资源操纵的能力，这一过程在「Kubernetes」中叫做「授权（Authoriazation）」，可以参考下图；不同的地方在于控制单元，基础设施的权限是以「用户账户（User Account）」的权限为单位的，而服务的权限是以「SA账户(ServiceAccount)」为单位划分的。
 
 ![Untitled](https://blog-1258539784.cos.ap-beijing.myqcloud.com/2023/06/20/untitled.png)
@@ -52,7 +52,7 @@ categories:
 
 ![Untitled](https://blog-1258539784.cos.ap-beijing.myqcloud.com/2023/06/20/untitled-2.png)
 
-# 实践
+## 实践
 
 下面以两个实践为例，理解前文提到的权限分发思路。表格为实验拓扑：一台Centos7.x作为Master节点，剩下两台作为Node节点
 
@@ -62,7 +62,7 @@ categories:
 | k8s-node1 | 192.168.56.81 | 3.10.0-1160.el7.x86_64 | userA |
 | k8s-node2 | 192.168.56.82 | 3.10.0-1160.el7.x86_64 | userB |
 
-## 实践场景1-使用UserAccount
+### 实践场景1-使用UserAccount
 
 master节点使用kubernetes-admin用户进行管理，其他两个node节点使用userA、userB用户进行管理，且需要满足的条件：
 
@@ -170,7 +170,7 @@ rolebinding.rbac.authorization.k8s.io/tenantb-pod-all-permission-role-binding cr
 
 ![Untitled](https://blog-1258539784.cos.ap-beijing.myqcloud.com/2023/06/20/untitled-5.png)
 
-## 实践场景2-使用ServiceAccount
+### 实践场景2-使用ServiceAccount
 
 在真实的渗透场景中，攻击者大多是通过Web网站拿到了某台容器的控制权限。在Kubernetes集群中，每台容器在启动时会被注入default权限的「ServiceToken」，位置在/var/run/secrets/kubernetes.io/serviceaccount，它是「ServiceAccount」（后文简称SA）的凭证
 
@@ -178,7 +178,7 @@ rolebinding.rbac.authorization.k8s.io/tenantb-pod-all-permission-role-binding cr
 
 为了展示较大权限的SA都能做哪些事情，现在我们在「tanent-a」命名空间下创建一个Thinkphp Web Service，对外暴露「30080」端口。其Pod容器使用的SA定义为「phpsa」，并且「phpsa」具有对当前「tanent-a」命名空间下Pod完全执行权限。
 
-### 创建Service
+#### 创建Service
 
 第一步创建phpsa，并且赋予其tanent-a命名空间下对Pod容器完全执行权限
 
@@ -257,7 +257,7 @@ spec:
 
 到这里，一个具有RCE漏洞的thinkphp5.0.23版本就搭建完毕了，攻击者可以通过[thinkphp5.xRCE](https://github.com/oneoy/thinkphp-RCE-POC)漏洞建立「reverse shell」或上传「webshell」
 
-### 后渗透利用
+#### 后渗透利用
 
 假设我们已经拿到「thinkphp」服务的容器权限，那么在后续的实战中，攻击者大多通过「cdk」等工具枚举当前SA账户「phpsa」都具有哪些权限
 
@@ -281,5 +281,5 @@ curl --cacert ./ca.crt --header "Authorization: Bearer $(cat ./token)" -X GET ht
 
 ![Untitled](https://blog-1258539784.cos.ap-beijing.myqcloud.com/2023/06/20/untitled-11.png)
 
-# 写在最后
+## 写在最后
 本文对理想条件下的「Kubernetes」授权进行了部分探究，但笔者比较好奇的是，业务态较广的云上业务，服务账号的授权行为不可能做到如此细粒度。那么有没有更快、更安全的做法将user group、namespace、准入控制玩出花活儿，从而让授权过程扁平化一些？先埋一个坑，等笔者有时间再探究一下

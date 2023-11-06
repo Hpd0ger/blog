@@ -82,3 +82,19 @@ div.post-meta {
   margin: 2px;
   padding: 8px;
 }
+
+/*toc css*/
+.toc {
+  position: fixed; /* 或者 absolute，取决于你的布局 */
+  top: 200px; /* 这是TOC顶部与页面顶部的距离 */
+  right: 20px; /* 这是TOC右侧与页面右侧的距离 */
+  width: 200px; /* 根据需要调整TOC的宽度 */
+  max-height: 90vh; /* 可视区域的高度，可以是100vh减去你希望的上下间隔 */
+  overflow: auto; /* 如果TOC很长，出现滚动条 */
+  padding: 10px;
+  z-index: 1000; /* 确保TOC在页面的其他元素之上 */
+}
+
+.content {
+  margin-right: 220px; /* 保持足够的右侧间距以显示TOC，根据TOC的宽度调整 */
+}
