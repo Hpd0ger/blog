@@ -8,37 +8,37 @@ tags:
   - AWS
 categories:
   - CTF
-##
-## Options for overriding site defaults
-##
+####
+#### Options for overriding site defaults
+####
 ---
 
 
-# AuthCloud-AWSCognito安全问题
+## TL;DR
 justCTF2023 Easy Auth Cloud题目，有关AWS Cognito认证服务可能存在的安全隐患
-
-# TL;DR
 
 这道题目和文章 [Hacking AWS Cognito Misconfigurations
 ](https://notsosecure.com/hacking-aws-cognito-misconfigurations) 思路大致相同，利用「Cognito」服务的默认配置和一些错误用法进行权限提升，但是多出几个细节，这里简单归结几点如下：
 
-- Web应用没有注册和登录功能，前端JavaScript代码简单混淆，能够通过**AWS Cognito JavaScript SDK** 拿到App Client ID, User Pool ID, Identity Pool ID, and region 信息
-- 攻击者首先需要获得Web应用的认证，在修改用户属性后，「Cognito Identity Pool」会基于ABAC（attribute based access control）的方式提供给用户更高权限的「AWS Credentials」，之后利用「AWS Credentials」获取托管在云上的「lambda」代码并解密出flag值
+1. Web应用没有注册和登录功能，前端JavaScript代码简单混淆，能够通过**AWS Cognito JavaScript SDK** 拿到App Client ID, User Pool ID, Identity Pool ID, and region 信息
+2. 攻击者首先需要获得Web应用的认证，在修改用户属性后，「Cognito Identity Pool」会基于ABAC（attribute based access control）的方式提供给用户更高权限的「AWS Credentials」，之后利用「AWS Credentials」获取托管在云上的「lambda」代码并解密出flag值
 
-# Cognito认证
+## Cognito认证
 
 「Cognito」是AWS提供的一项全托管的认证、授权和用户管理服务，通过「Cognito」，开发人员可以不用自行编写认证、授权和用户管理的代码，而是通过「Cognito」的API来完成这些操作。「Cognito」提供两种核心服务，分别为「UserPool」和「Identity Pool」 
 
-1. UserPool：UserPool表示一个用户池，用于管理用户的注册、登录、身份验证和密码重置等操作。使用UserPool可以方便地创建和管理用户帐户，用以Web、Mobile APP的身份管理。此外，UserPool还支持社交身份验证，例如Facebook、Google等。
+- UserPool：UserPool表示一个用户池，用于管理用户的注册、登录、身份验证和密码重置等操作。使用UserPool可以方便地创建和管理用户帐户，用以Web、Mobile APP的身份管理。此外，UserPool还支持社交身份验证，例如Facebook、Google等。
+
 ![](https://blog-1258539784.cos.ap-beijing.myqcloud.com/2023/06/05/16859779133860.jpg)
 
 
-2. Identity Pool：Identity Pool表示身份池，用于管理访问AWS服务的用户身份认证和授权。它与UserPool不同，它可以提供跨不同平台（不同应用程序和设备）的单一登录。身份池为应用程序用户提供了一组临时安全证书，这些证书可用于访问AWS服务。
+- Identity Pool：Identity Pool表示身份池，用于管理访问AWS服务的用户身份认证和授权。它与UserPool不同，它可以提供跨不同平台（不同应用程序和设备）的单一登录。身份池为应用程序用户提供了一组临时安全证书，这些证书可用于访问AWS服务。
+
 ![](https://blog-1258539784.cos.ap-beijing.myqcloud.com/2023/06/05/16859778106711.jpg)
 
 通过这两种服务，开发人员可以方便地创建、管理和验证用户帐户，并管理应用程序的访问权限和安全性。
 
-# 题目复现
+## 题目复现
 开局给了个登陆页面，经过简单阅读前端JS代码后发现有对「Cognito SDK」的使用，调出前端控制台debug偏移就能够拿到「Cognito」信息
 
 ![Untitled](https://blog-1258539784.cos.ap-beijing.myqcloud.com/2023/06/05/untitled.png)
@@ -229,6 +229,6 @@ aws lambda get-function --function-name FlagLambda --query 'Code.Location' --pro
 
 ![Untitled](https://blog-1258539784.cos.ap-beijing.myqcloud.com/2023/06/05/untitled-12.png)
 
-# 总结
+## 总结
 
 总的来说，漏洞的核心在于作者配置了Cognito Identity Pool认证时采用ABAC的方式，且ABAC的部分值又由用户可控，信任空间没有把握好。

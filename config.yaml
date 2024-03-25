@@ -42,3 +42,9 @@ params:
     - name: Twitter
       url: https://twitter.com/hpdoger
   subtitle: "Share with Web Security Knowledge"
+
+markup:
+  tableOfContents:
+    startLevel: 2
+    endLevel: 4
+    ordered: false

