@@ -18,17 +18,17 @@ categories:
 
 # Challenge1
 
-提示需要找到当前集群的中存在的Web Service服务。在K8S集群中，「环境变量」包含了K8S的kube-apiserver通信地址，使用dnscan指定此类地址的B段扫描，得到集群存在的其他svc服务如下图，访问10.100.136.254的HTTP服务拿到flag。
+提示需要找到当前集群中存在的Web Service服务。在K8S集群中，Pod容器的「环境变量」包含了K8S的kube-apiserver通信地址，因此使用dnscan指定此类地址的B段扫描，能够得到集群存在的其他svc服务（如下图），在访问10.100.136.254的HTTP服务后拿到flag。
 
 ![Untitled](https://blog-1258539784.cos.ap-beijing.myqcloud.com/2024/03/25/untitled-1.png)
 
 ![Untitled](https://blog-1258539784.cos.ap-beijing.myqcloud.com/2024/03/25/untitled-2.png)
 
-这里拓展一点关于网格服务（Service Mesh）的「坑」，但和题目本身无关。当前环境所在的K8S集群使用istio作为Service Mesh，用来转发Pod出口、入口的网络流量。但在做题过程中发现，如在题目环境中使用nmap对10.100.136.254进行端口扫描，单从结果上看，这个IP地址开放了TCP全端口。
+这里再拓展一点关于网格服务（Service Mesh）的「坑」，但和题目本身无关。当前题目环境所在的K8S集群使用istio作为Service Mesh，用来转发Pod出口、入口的网络流量。在做题过程中发现，在使用nmap对10.100.136.254容器进行端口扫描，单从结果上看，这个IP地址所在容器开放了TCP全端口。
 
 ![Untitled](https://blog-1258539784.cos.ap-beijing.myqcloud.com/2024/03/25/untitled-3.png)
 
-这种错误的结果在Kubernetes Service Mesh场景很常见，也是信息收集过程中的坑点：TCP端口的假阳性。在[Kubernetes Internal Service Discovery](https://thegreycorner.com/2023/12/13/kubernetes-internal-service-discovery.html#kubernetes-dns-to-the-partial-rescue)这篇文章中，作者指出造成此现象的原因：
+这种错误的结果在Kubernetes Service Mesh场景很常见，也是信息收集过程中的坑点：TCP端口的假阳性。[Kubernetes Internal Service Discovery](https://thegreycorner.com/2023/12/13/kubernetes-internal-service-discovery.html#kubernetes-dns-to-the-partial-rescue)这篇文章中，作者指出造成此现象的原因在与：
 
 > 某些服务网格（例如 Istio）通过拦截某些 Pod 和服务的流量来工作，以提供功能更丰富的流量路由。在这种情况下，网格组件将为其配置范围内的所有有效端口和所有有效 IP 地址完成 TCP 三向握手，然后仅当存在到 pod 或服务的已配置服务网格路由时，才在后端转发连接。即使在关联的 IP 地址和/或端口上没有实际监听任何内容，这也会导致 TCP 端口看起来是打开的。当发生这种情况时，使用 TCP 握手来确定主机是否处于活动状态或端口是否打开的端口扫描程序将给出非常不准确的结果。在这些情况下，您只能依赖应用程序级别的响应返回，然后才能判断所谓的侦听 TCP 服务器是否确实背后有某些东西。
 > 
